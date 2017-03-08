@@ -98,6 +98,9 @@ SELECT I.InvoiceId, I.Total
 FROM Invoice I
 WHERE I.InvoiceDate >= '2009-1-1' AND I.InvoiceDate <= '2011-12-31' -- STILL WORKING ON THIS
 
+-- FINISH THIS WESTLEY AHHHHHHHHHHHHHHHHHH!!!!
+
+
 -- Looking at the InvoiceLine table, provide a query that COUNTs the number of line items for Invoice ID 37.
 
 SELECT COUNT(IL.InvoiceID) AS "Num Lines"
@@ -106,23 +109,51 @@ WHERE IL.InvoiceId = '37'
 
 -- Looking at the InvoiceLine table, provide a query that COUNTs the number of line items for each Invoice. HINT: GROUP BY
 
+SELECT I.InvoiceId, COUNT(I.InvoiceId)
+FROM InvoiceLine I
+GROUP BY I.InvoiceId
+
 
 -- Provide a query that includes the track name with each invoice line item.
 
+SELECT I.InvoiceLineId, T.Name
+FROM Track T
+LEFT JOIN InvoiceLine I
+ON I.TrackId = T.TrackId
+WHERE I.InvoiceLineId != NULL
 
 -- Provide a query that includes the purchased track name AND artist name with each invoice line item.
 
+SELECT IL.InvoiceLineId, T.Name AS "Song Name", ART.Name AS "Artist Name"
+FROM InvoiceLine IL
+LEFT JOIN Track T
+ON IL.TrackId = T.TrackId
+LEFT JOIN Album ALB
+ON T.AlbumId = ALB.AlbumId
+LEFT JOIN Artist ART
+ON ALB.ArtistId = Art.ArtistId
 
 -- Provide a query that shows the # of invoices per country. HINT: GROUP BY
+
+SELECT I.BillingCountry, COUNT(I.BillingCountry) AS "# Invoices"
+FROM Invoice I
+GROUP BY I.BillingCountry
 
 
 -- Provide a query that shows the total number of tracks in each playlist. The Playlist name should be include on the resultant table.
 
+SELECT Plist.Name, COUNT(PLTrack.PlaylistId)
+FROM PlayList Plist
+JOIN PlaylistTrack PLTrack
+ON Plist.PlaylistId = PLTrack.PlaylistId
+GROUP BY Plist.Name
 
 -- Provide a query that shows all the Tracks, but displays no IDs. The resultant table should include the Album name, Media type and Genre.
 
 
 -- Provide a query that shows all Invoices but includes the # of invoice line items.
+
+SELECT
 
 
 -- Provide a query that shows total sales made by each sales agent.
@@ -136,6 +167,7 @@ WHERE IL.InvoiceId = '37'
 
 -- Which sales agent made the most in sales over all?
 
+SELECT
 
 -- Provide a query that shows the # of customers assigned to each sales agent.
 
