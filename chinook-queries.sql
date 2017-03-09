@@ -289,7 +289,7 @@ LIMIT 1
 
 -- Provide a query that shows the top 3 best selling artists.
 
-SELECT Art.Name, SUM(I.Total) AS "Total Artist Sales"
+SELECT Art.Name, COUNT(IL.InvoiceLineId) AS "Number Sold", SUM(I.Total) AS "Total Artist Sales"
 FROM Artist Art
 JOIN Album Alb
 ON Art.ArtistId = Alb.ArtistId
@@ -305,7 +305,7 @@ LIMIT 3
 
 -- Provide a query that shows the most purchased Media Type.
 
-SELECT M.Name, SUM(I.Total) AS "Total"
+SELECT M.Name, COUNT(I.InvoiceId), SUM(I.Total) AS "Total"
 FROM MediaType M
 JOIN Track T
 ON M.MediaTypeId = T.MediaTypeId
