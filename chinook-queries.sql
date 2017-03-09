@@ -150,13 +150,34 @@ GROUP BY Plist.Name
 
 -- Provide a query that shows all the Tracks, but displays no IDs. The resultant table should include the Album name, Media type and Genre.
 
+SELECT A.Title AS "Album Name", M.Name AS "Media Type", G.Name AS "Genre"
+FROM Track T
+LEFT JOIN Album A
+ON T.AlbumId = A.AlbumId
+LEFT JOIN MediaType M
+ON T.MediaTypeId = M.MediaTypeId
+LEFT JOIN Genre G
+ON T.GenreId = G.GenreId
+
 
 -- Provide a query that shows all Invoices but includes the # of invoice line items.
 
-SELECT
+SELECT I.InvoiceId, COUNT(IL.InvoiceId) AS "# Invoices"
+FROM Invoice I, InvoiceLine IL
+WHERE I.InvoiceId = IL.InvoiceId
+GROUP BY I.InvoiceId
 
 
 -- Provide a query that shows total sales made by each sales agent.
+
+SELECT E.FirstName || " " || E.LastName AS "Employee Name", SUM(I.Total) AS "Total Sales"
+FROM Employee E
+JOIN Customer C
+ON E.EmployeeId = C.SupportRepId
+JOIN Invoice I
+ON C.CustomerId = I.CustomerId
+WHERE E.Title = "Sales Support Agent"
+GROUP BY E.EmployeeId
 
 
 -- Which sales agent made the most in sales in 2009?
@@ -167,13 +188,35 @@ SELECT
 
 -- Which sales agent made the most in sales over all?
 
-SELECT
+SELECT E.FirstName || " " || E.LastName AS "Employee Name", SUM(I.Total) AS "Total Sales"
+FROM Employee E
+JOIN Customer C
+ON E.EmployeeId = C.SupportRepId
+JOIN Invoice I
+ON C.CustomerId = I.CustomerId
+WHERE E.Title = "Sales Support Agent"
+GROUP BY E.EmployeeId
+ORDER BY "Total Sales" DESC
+LIMIT 1
+
 
 -- Provide a query that shows the # of customers assigned to each sales agent.
+
+SELECT E.FirstName || " " || E.LastName AS "Sales Agent", COUNT(C.SupportRepId) AS "# of Customers"
+FROM Employee E
+JOIN Customer C
+ON E.EmployeeId = C.SupportRepId
+WHERE E.Title = "Sales Support Agent"
+GROUP BY E.EmployeeId
 
 
 -- Provide a query that shows the total sales per country. Which country's customers spent the most?
 
+SELECT C.Country, SUM(I.Total) AS "Country Total Sales"
+FROM Customer C
+JOIN Invoice I
+ON C.CustomerId = I.CustomerId
+GROUP BY C.Country
 
 -- Provide a query that shows the most purchased track of 2013.
 
@@ -185,3 +228,15 @@ SELECT
 
 
 -- Provide a query that shows the most purchased Media Type.
+
+SELECT M.Name, SUM(I.Total) AS "Total"
+FROM MediaType M
+JOIN Track T
+ON M.MediaTypeId = T.MediaTypeId
+JOIN InvoiceLine IL
+ON T.TrackId = IL.TrackId
+JOIN Invoice I
+ON IL.InvoiceId = I.InvoiceId
+GROUP BY M.Name
+ORDER BY "Total" DESC
+LIMIT 1
