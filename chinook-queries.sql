@@ -45,25 +45,25 @@ GROUP BY I.BillingCountry
 
 -- Provide a query showing the invoices of customers who are from Brazil.
 
-SELECT *
-FROM Invoice
-WHERE Invoice.BillingCountry = 'Brazil'
+  SELECT *
+  FROM Invoice
+  WHERE Invoice.BillingCountry = 'Brazil'
 
--- for some reason I thinking the customer country could be different from the billing country
--- or
+  -- for some reason I thinking the customer country could be different from the billing country
+  -- or
 
-SELECT *
-FROM Invoice I, Customer C
-ON C.CustomerId = I.CustomerId
-WHERE C.Country = 'Brazil'
+  SELECT *
+  FROM Invoice I, Customer C
+  ON C.CustomerId = I.CustomerId
+  WHERE C.Country = 'Brazil'
 
--- or
+  -- or
 
-SELECT *
-FROM Invoice I
-LEFT JOIN Customer C
-ON C.CustomerId = I.CustomerId
-WHERE C.Country = 'Brazil'
+  SELECT *
+  FROM Invoice I
+  LEFT JOIN Customer C
+  ON C.CustomerId = I.CustomerId
+  WHERE C.Country = 'Brazil'
 
 
 -- Provide a query that shows the invoices associated with each sales agent. The resultant table should include the Sales Agent's full name.
@@ -94,11 +94,18 @@ WHERE E.Title = "Sales Support Agent"
 
 -- How many Invoices were there in 2009 and 2011? What are the respective total sales for each of those years?
 
-SELECT I.InvoiceId, I.Total
-FROM Invoice I
-WHERE I.InvoiceDate >= '2009-1-1' AND I.InvoiceDate <= '2011-12-31' -- STILL WORKING ON THIS
+  -- Doesn't work - doesn't return correct number of invoices
+  -- SELECT I.InvoiceId, I.Total
+  -- FROM Invoice I
+  -- WHERE I.InvoiceDate >= '2009-1-1' AND I.InvoiceDate <= '2011-12-31'
 
--- FINISH THIS WESTLEY AHHHHHHHHHHHHHHHHHH!!!!
+-- This works
+
+  SELECT substr( I.InvoiceDate, 1, 4 ) AS 'Year', COUNT(I.InvoiceDate) AS '# of Invoices', SUM(I.Total) AS 'Total'
+  FROM Invoice I
+  WHERE substr( I.InvoiceDate, 1, 4 ) = '2009'
+  OR substr( I.InvoiceDate, 1, 4 ) = '2011'
+  GROUP BY strftime('%Y', I.InvoiceDate)
 
 
 -- Looking at the InvoiceLine table, provide a query that COUNTs the number of line items for Invoice ID 37.
@@ -182,8 +189,31 @@ GROUP BY E.EmployeeId
 
 -- Which sales agent made the most in sales in 2009?
 
+SELECT E.FirstName || " " || E.LastName AS "Employee Name", SUM(I.Total) AS "2009 Employee Sales"
+FROM Employee E
+JOIN Customer C
+ON E.EmployeeId = C.SupportRepId
+JOIN Invoice I
+ON C.CustomerId = I.CustomerId
+WHERE E.Title = "Sales Support Agent"
+AND substr(I.InvoiceDate, 1, 4) = "2009"
+GROUP BY E.EmployeeId
+ORDER BY SUM(I.Total) DESC
+LIMIT 1
 
 -- Which sales agent made the most in sales in 2010?
+
+SELECT E.FirstName || " " || E.LastName AS "Employee Name", SUM(I.Total) AS "2010 Employee Sales"
+FROM Employee E
+JOIN Customer C
+ON E.EmployeeId = C.SupportRepId
+JOIN Invoice I
+ON C.CustomerId = I.CustomerId
+WHERE E.Title = "Sales Support Agent"
+AND substr(I.InvoiceDate, 1, 4) = "2010"
+GROUP BY E.EmployeeId
+ORDER BY SUM(I.Total) DESC
+LIMIT 1
 
 
 -- Which sales agent made the most in sales over all?
@@ -220,12 +250,58 @@ GROUP BY C.Country
 
 -- Provide a query that shows the most purchased track of 2013.
 
+SELECT T.Name, substr( I.InvoiceDate, 1, 4) AS 'Year Sold', COUNT(T.TrackId) AS '# Tracks Sold'
+FROM Track T
+JOIN InvoiceLine IL
+ON T.TrackId = IL.TrackId
+JOIN Invoice I
+ON IL.InvoiceId = I.InvoiceId
+WHERE substr( I.InvoiceDate, 1, 4 ) = '2013'
+GROUP BY T.TrackId
+ORDER BY COUNT(T.TrackId) DESC
+LIMIT 1
+
 
 -- Provide a query that shows the top 5 most purchased tracks over all.
+
+  -- best selling track by total sales
+
+  SELECT T.Name, SUM(I.Total) AS "Most Sold Track"
+  FROM Track T
+  JOIN InvoiceLine IL
+  ON T.TrackId = IL.TrackId
+  JOIN Invoice I
+  ON IL.InvoiceId = I.InvoiceId
+  GROUP BY T.Name
+  ORDER BY "Most Sold Track" DESC
+  LIMIT 5
+
+  -- best selling track by num tracks sold
+
+  SELECT T.Name, SUM(IL.Quantity) AS "Tracks Sold", T.TrackId, IL.TrackId
+  FROM Track T
+  JOIN InvoiceLine IL
+  ON T.TrackId = IL.TrackId
+  GROUP BY T.TrackId
+  ORDER BY "Tracks Sold" DESC
+  LIMIT 5
 
 
 -- Provide a query that shows the top 3 best selling artists.
 
+SELECT Art.Name, SUM(I.Total) AS "Total Artist Sales"
+FROM Artist Art
+JOIN Album Alb
+ON Art.ArtistId = Alb.ArtistId
+JOIN Track T
+ON Alb.AlbumID = T.AlbumId
+JOIN InvoiceLine IL
+ON T.TrackId = IL.TrackId
+JOIN Invoice I
+ON IL.InvoiceId = I.InvoiceId
+GROUP BY Art.Name
+ORDER BY "Total Artist Sales" DESC
+LIMIT 3
 
 -- Provide a query that shows the most purchased Media Type.
 
